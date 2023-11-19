@@ -1,8 +1,37 @@
 version: "3.9"
 services:
 
+#  keycloak_postgres:
+#    image: postgres
+#    environment:
+#      POSTGRES_USER: "admin"
+#      POSTGRES_PASSWORD: "admin"
+#      POSTGRES_HOST_AUTH_METHOD: trust
+#      POSTGRES_DB: bitnami_keycloak
+#    expose:
+#      - "5431"
+#    ports:
+#      - "5431:5431"
+#    restart: unless-stopped
+
+  keycloak:
+    image: bitnami/keycloak:latest
+    environment:
+      KEYCLOAK_ADMIN_USER : admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_DATABASE_VENDOR: dev-mem
+      KEYCLOAK_HTTP_PORT: 8091
+#      KEYCLOAK_DATABASE_HOST: keycloak_postgres
+#      KEYCLOAK_DATABASE_PORT: 5431
+#      KEYCLOAK_DATABASE_PASSWORD: admin
+    ports:
+      - "8091:8091"
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#    depends_on:
+#      - keycloak_postgres
+
   postgres:
-    container_name: postgres-gilgamesh
     image: postgres
     environment:
       POSTGRES_USER: "admin"
