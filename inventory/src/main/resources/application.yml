@@ -1,0 +1,41 @@
+spring:
+  kafka:
+    bootstrap-servers: host.docker.internal:29092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  datasource:
+    password: admin
+    url: jdbc:postgresql://host.docker.internal:5432/inventory_db
+    username: admin
+    driver-class-name: org.postgresql.Driver
+  application:
+    name: Inventory
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+kafka:
+  topics:
+    emails-topic: email
+    errors-topic: errors
+    logs-topic: logs

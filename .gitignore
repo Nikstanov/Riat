@@ -1,0 +1,10 @@
+grafana
+prometheus
+postgres-data
+postgres
+
+#Inventory
+inventory/gradle
+inventory/.gradle
+inventory/.idea
+inventory/build
