@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: services_registry
+server:
+  port: 8082
+eureka:
+  client:
+    service-url:
+      defaultZone: http://host.docker.internal:8082/eureka
+    eureka-server-port: 8082
+    fetch-registry: false
+    register-with-eureka: false

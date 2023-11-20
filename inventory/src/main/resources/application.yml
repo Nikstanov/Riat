@@ -1,5 +1,4 @@
 spring:
-
   config:
     name: inventory_app
 
@@ -50,3 +49,12 @@ kafka:
     emails-topic: email
     errors-topic: errors
     logs-topic: logs
+
+server:
+  port: 8083
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://host.docker.internal:8082/eureka

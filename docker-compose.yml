@@ -47,9 +47,28 @@ services:
       context: .
       dockerfile: inventory/Dockerfile
     ports:
-      - "8080:8080"
+      - "8083:8083"
     depends_on: 
       - postgres
+      - api_gateway
+      - kafka-ui
+      - keycloak
+
+  services_registry:
+    build:
+      context: .
+      dockerfile: services_registry/Dockerfile
+    ports:
+      - "8082:8082"
+
+  api_gateway:
+    build:
+      context: .
+      dockerfile: api_gateway/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - services_registry
 
   grafana:
 #    image: grafana/grafana
@@ -63,6 +82,8 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
 
   prometheus:
     image: prom/prometheus
@@ -72,7 +93,7 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - ./dockerfiles/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./prometheus:/prometheus
+      - prometheus:/prometheus
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -110,3 +131,7 @@ services:
     links:
       - kafka
       - zookeeper
+
+volumes:
+  prometheus:
+  keycloak:
