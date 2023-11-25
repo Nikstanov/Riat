@@ -25,6 +25,7 @@ public class KafkaService {
 
     private int messageNumber = 0;
     private final KafkaTemplate<Object, Object> kafkaTemplate;
+
     public void sendEmail(){
         messageNumber++;
         JsonMessage jsonMessage = JsonMessage.builder()

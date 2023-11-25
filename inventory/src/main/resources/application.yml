@@ -10,13 +10,15 @@ spring:
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
 
   kafka:
-    bootstrap-servers: host.docker.internal:29092
+    bootstrap-servers: kafka:29092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.trusted.packages: "com.riat.inventory.dto.JsonMessage"
   datasource:
     password: admin
-    url: jdbc:postgresql://host.docker.internal:5432/inventory_db
+    url: jdbc:postgresql://host.docker.internal:5432/main_db
     username: admin
     driver-class-name: org.postgresql.Driver
   application:
@@ -51,10 +53,16 @@ kafka:
     logs-topic: logs
 
 server:
-  port: 8083
+  port: 8081
+
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
       defaultZone: http://host.docker.internal:8082/eureka
+  instance:
+    metadata-map:
+      "prometheus.scrape": "true"
+      "prometheus.path": "/actuator/prometheus"
+      "prometheus.port": ${server.port}

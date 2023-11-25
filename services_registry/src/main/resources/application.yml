@@ -1,6 +1,7 @@
 spring:
   application:
     name: services_registry
+
 server:
   port: 8082
 eureka:
@@ -10,3 +11,20 @@ eureka:
     eureka-server-port: 8082
     fetch-registry: false
     register-with-eureka: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  endpoint:
+    prometheus:
+      enabled: true

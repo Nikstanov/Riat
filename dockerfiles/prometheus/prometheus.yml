@@ -1,6 +1,13 @@
 scrape_configs:
-  - job_name: 'sample_monitoring'
+  - job_name: 'eureka'
     scrape_interval: 5s
     metrics_path: '/actuator/prometheus'
+    eureka_sd_configs:
+      - server: http://host.docker.internal:8082/eureka   
     static_configs:
-      - targets: ['host.docker.internal:8080','host.docker.internal:8081]']
+      - targets: ['host.docker.internal:8082']
+  - job_name: 'postgres'
+    scrape_interval: 5s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: [ 'host.docker.internal:5342' ]

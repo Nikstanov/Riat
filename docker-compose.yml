@@ -19,17 +19,15 @@ services:
     environment:
       KEYCLOAK_ADMIN_USER : admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-      KEYCLOAK_DATABASE_VENDOR: dev-mem
       KEYCLOAK_HTTP_PORT: 8091
-#      KEYCLOAK_DATABASE_HOST: keycloak_postgres
-#      KEYCLOAK_DATABASE_PORT: 5431
-#      KEYCLOAK_DATABASE_PASSWORD: admin
+      KEYCLOAK_DATABASE_HOST : postgres
+      KEYCLOAK_DATABASE_NAME: main_db
+      KEYCLOAK_DATABASE_USER: admin
+      KEYCLOAK_DATABASE_PASSWORD: admin
     ports:
       - "8091:8091"
-#    extra_hosts:
-#      - "host.docker.internal:host-gateway"
-#    depends_on:
-#      - keycloak_postgres
+    depends_on:
+      - postgres
 
   postgres:
     image: postgres
@@ -37,7 +35,7 @@ services:
       POSTGRES_USER: "admin"
       POSTGRES_PASSWORD: "admin"
       POSTGRES_HOST_AUTH_METHOD: trust
-      POSTGRES_DB: inventory_db
+      POSTGRES_DB: main_db
     ports:
       - "5432:5432"
     restart: unless-stopped
@@ -46,12 +44,9 @@ services:
     build:
       context: .
       dockerfile: inventory/Dockerfile
-    ports:
-      - "8083:8083"
     depends_on: 
       - postgres
-      - api_gateway
-      - kafka-ui
+      - kafka
       - keycloak
 
   services_registry:
@@ -70,6 +65,17 @@ services:
     depends_on:
       - services_registry
 
+  stats_service:
+    build:
+      context: .
+      dockerfile: stats_service/Dockerfile
+    volumes:
+      - ./logs/:/app/logs/
+    depends_on:
+      - services_registry
+      - kafka
+      - keycloak
+
   grafana:
 #    image: grafana/grafana
     build:
@@ -87,8 +93,6 @@ services:
 
   prometheus:
     image: prom/prometheus
-    ports:
-      - "9090:9090"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -100,8 +104,6 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "22181:2181"
 
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -113,16 +115,16 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://host.docker.internal:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
-
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      
   kafka-ui:
     image: provectuslabs/kafka-ui
     container_name: kafka-ui
     ports:
-      - 8090:8080
+      - "8090:8080"
     restart: always
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
