@@ -1,0 +1,81 @@
+spring:
+  config:
+    name: stats_app
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://host.docker.internal:8091/realms/riat_app_realm
+          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+
+  kafka:
+    bootstrap-servers: host.docker.internal:29092
+    listener:
+      ack-mode: record
+    producer:
+      bootstrap-servers: host.docker.internal:29092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.trusted.packages: "com.riat.inventory.dto.JsonMessage"
+    consumer:
+      group-id: ${spring.application.name}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+      bootstrap-servers: host.docker.internal:29092
+      properties:
+        # Тип, для которого определяем конкретные сериализаторы
+        spring.json.value.default.type: ru.home.kafka.dto.JsonMessage
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+
+
+
+
+  application:
+    name: Stats
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+kafka:
+  topics:
+    emails-topic: email
+    errors-topic: errors
+    logs-topic: logs
+
+server:
+  port: 0
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://host.docker.internal:8082/eureka
+  instance:
+    metadata-map:
+      "prometheus.scrape": "true"
+      "prometheus.path": "/actuator/prometheus"
+      "prometheus.port": ${server.port}
+
+logging:
+  mark: KAFKA
+  charset:
+    file: UTF-8
+  file:
+    name: logs/logs
+  include-application-name: true
