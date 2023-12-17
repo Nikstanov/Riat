@@ -37,6 +37,8 @@ This project demonstrates a microservices-based architecture for an e-commerce s
 
 ## Getting Started
 
+API - https://app.swaggerhub.com/apis-docs/NSTAHNOV/RIAT_APP/0.1.0#/info
+
 To run the project locally, follow these steps:
 
 1. Clone the repository: `git clone [repository_url]`
